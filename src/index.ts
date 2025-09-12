@@ -281,8 +281,19 @@ function readPathsFromStdin(useNull: boolean): string[] {
 }
 
 // Main CLI
-function main(): void {
+export function main(): void {
   const program = new Command();
+  // Resolve version from package.json
+  let pkgVersion = '0.0.0';
+  try {
+    const pkgUrl = new URL('../package.json', import.meta.url);
+    const pkgStr = fs.readFileSync(pkgUrl, 'utf8');
+    const pkgJson = JSON.parse(pkgStr);
+    if (typeof pkgJson.version === 'string') {
+      pkgVersion = pkgJson.version;
+    }
+  } catch {}
+
   program
     .name('files2prompt')
     .description(
@@ -308,7 +319,7 @@ function main(): void {
       'Contents of file1.py\n' +
       '```'
     )
-    .version('1.0.0')
+    .version(pkgVersion)
     .argument('[paths...]', 'Paths to files or directories')
     .option('-e, --extension <ext>', 'Filter by extension (repeatable, e.g., -e py -e js)', (v: string, prev: string[]) => prev.concat(v), [] as string[])
     .option('--include-hidden', 'Include files and folders starting with .')
@@ -328,6 +339,15 @@ function main(): void {
   globalIndex = 1;
   let gitignoreRules: string[] = [];
 
+  // Ensure output directory exists, if writing to a file
+  if (opts.output) {
+    try {
+      const outDir = path.dirname(opts.output);
+      if (outDir && outDir !== '.') {
+        fs.mkdirSync(outDir, { recursive: true });
+      }
+    } catch {}
+  }
   const outputStream: NodeJS.WritableStream = opts.output
     ? fs.createWriteStream(opts.output, { encoding: 'utf8' })
     : process.stdout;
@@ -375,6 +395,11 @@ function main(): void {
     }
   }
 
+  // Normalize extensions to ensure they have a leading dot (e.g., "ts" -> ".ts")
+  const normalizedExtensions: string[] = (Array.isArray(opts.extension) ? opts.extension : []).map((e: string) =>
+    e.startsWith('.') ? e : `.${e}`
+  );
+
   for (let i = 0; i < allPaths.length; i++) {
     const p = allPaths[i];
     if (!fs.existsSync(p)) {
@@ -393,7 +418,7 @@ function main(): void {
     }
     processPath(
       p,
-      Array.isArray(opts.extension) ? opts.extension : [],
+      normalizedExtensions,
       !!opts.includeHidden,
       !!opts.ignoreFilesOnly,
       !!opts.ignoreGitignore,
@@ -416,11 +441,4 @@ function main(): void {
   }
 }
 
-// Run main (with error handling) unconditionally when this module loads as a CLI entrypoint.
-// This avoids issues where certain npx/bin execution environments don't satisfy a "direct run" check.
-try {
-  main();
-} catch (err) {
-  console.error(err);
-  process.exit(1);
-}
+// Note: Do not auto-run main() here. The CLI entrypoint in src/cli.ts will import and execute main().
