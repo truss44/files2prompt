@@ -1,3 +1,15 @@
+## [2.1.0](https://github.com/truss44/files2prompt/compare/v2.0.0...v2.1.0) (2025-09-12)
+
+### Features
+
+* add f2p and files2prompt-cli aliases for easier CLI usage ([6ad3324](https://github.com/truss44/files2prompt/commit/6ad3324ad38f8c89df7be3048d891f16a4105188))
+* add JSON output format, file size limits, and relative path options ([3f5fe3a](https://github.com/truss44/files2prompt/commit/3f5fe3a68736f6a6874814c1b19d06de29a31362))
+
+### Bug Fixes
+
+* default to current directory ([c55a313](https://github.com/truss44/files2prompt/commit/c55a313ff9b2f49f842cbbd9587053f52f3a6f5b))
+* default to current directory when no paths provided and simplify CLI entrypoint logic ([2cbaffe](https://github.com/truss44/files2prompt/commit/2cbaffe49bdb4ce7b88e8b86a0f904418465bf74))
+
 ## [2.0.0](https://github.com/truss44/files2prompt/compare/v1.0.0...v2.0.0) (2025-09-12)
 
 ### ⚠ BREAKING CHANGES
