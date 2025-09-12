@@ -73,7 +73,7 @@ Get up and running in seconds with the most common commands.
 files2prompt [options] [paths...]
 ```
 
-- `[paths...]`: One or more file/directory paths (e.g., `./src` or `file.py`). If none provided, reads from stdin.
+- `[paths...]`: One or more file/directory paths (e.g., `./src` or `file.py`). If none provided (and no stdin), defaults to the current directory (`.`).
 - Output goes to stdout (or `--output` file).
 
 ### Options

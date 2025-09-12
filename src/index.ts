@@ -4,7 +4,6 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { Command } from 'commander';
 import ignore from 'ignore';
-import { fileURLToPath } from 'url';
 
 // Language mapping for Markdown
 const EXT_TO_LANG: Record<string, string> = {
@@ -358,11 +357,11 @@ function main(): void {
   };
 
   const stdinPaths = readPathsFromStdin(!!opts.null);
-  const allPaths = [...argPaths, ...stdinPaths];
+  let allPaths = [...argPaths, ...stdinPaths];
 
   if (allPaths.length === 0) {
-    if (opts.output) outputStream.end();
-    return;
+    // Default to current directory if nothing was provided via args or stdin
+    allPaths = ['.'];
   }
 
   // Build project-root ignore instance from CWD .gitignore (once)
@@ -417,22 +416,11 @@ function main(): void {
   }
 }
 
-// Run main (with error handling)
-const isDirectRun = (() => {
-  try {
-    const thisFile = fileURLToPath(import.meta.url);
-    const invoked = process.argv[1] ? path.resolve(process.argv[1]) : '';
-    return thisFile === invoked;
-  } catch {
-    return false;
-  }
-})();
-
-if (isDirectRun) {
-  try {
-    main();
-  } catch (err) {
-    console.error(err);
-    process.exit(1);
-  }
+// Run main (with error handling) unconditionally when this module loads as a CLI entrypoint.
+// This avoids issues where certain npx/bin execution environments don't satisfy a "direct run" check.
+try {
+  main();
+} catch (err) {
+  console.error(err);
+  process.exit(1);
 }
