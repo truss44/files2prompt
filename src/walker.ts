@@ -25,8 +25,8 @@ export function walkDir(
   writer: (line: string) => void,
   cxml: boolean,
   markdown: boolean,
-  json: boolean,
   lineNumbers: boolean,
+  json: boolean = false,
   options: WalkOptions = {}
 ): void {
   let dirents = fs.readdirSync(root, { withFileTypes: true });
@@ -127,8 +127,8 @@ export function walkDir(
       writer,
       cxml,
       markdown,
-      json,
       lineNumbers,
+      json,
       options
     );
   }
@@ -147,8 +147,8 @@ export function processPath(
   writer: (line: string) => void,
   cxml: boolean,
   markdown: boolean,
-  json: boolean,
   lineNumbers: boolean,
+  json: boolean = false,
   options: WalkOptions = {}
 ): void {
   if (fs.existsSync(p)) {
@@ -201,8 +201,8 @@ export function processPath(
         writer,
         cxml,
         markdown,
-        json,
         lineNumbers,
+        json,
         options
       );
     }
