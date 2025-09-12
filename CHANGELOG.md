@@ -1,3 +1,10 @@
+## [2.2.0](https://github.com/truss44/files2prompt/compare/v2.1.0...v2.2.0) (2025-09-12)
+
+### Features
+
+* skip binary files during directory traversal using extension and content detection ([3dfeaaf](https://github.com/truss44/files2prompt/commit/3dfeaafc28384a9deb0a2cdfb855b61e996b271c))
+* skip binary files during directory traversal using extension and content detection ([cbc01d4](https://github.com/truss44/files2prompt/commit/cbc01d4b12334702dc82faf66362c7e3b7f13bbc))
+
 ## [2.1.0](https://github.com/truss44/files2prompt/compare/v2.0.0...v2.1.0) (2025-09-12)
 
 ### Features
