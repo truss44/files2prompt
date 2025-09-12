@@ -96,4 +96,33 @@ describe('walker/processPath', () => {
     expect(output).toContain(keep);
     expect(output).not.toContain(skip);
   });
+
+  test('skips binary files (e.g., images)', () => {
+    const tmp = makeTempDir();
+    const img = path.join(tmp, 'image.png');
+    const txt = path.join(tmp, 'note.txt');
+    // Write a tiny PNG-like file (extension-based detection will skip regardless of content)
+    const pngSig = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+    fs.writeFileSync(img, pngSig);
+    fs.writeFileSync(txt, 'hello world');
+
+    const { lines, writer } = collectWriter();
+    processPath(
+      tmp,
+      [],
+      true,
+      false,
+      true,
+      [],
+      [],
+      null as unknown as ReturnType<typeof ignore>,
+      writer,
+      false,
+      false,
+      false
+    );
+    const output = lines.join('\n');
+    expect(output).toContain(txt);
+    expect(output).not.toContain(img);
+  });
 });
