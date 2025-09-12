@@ -56,6 +56,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/truss44/prompt2files.git"
-  }
+    "url": "git+https://github.com/truss44/prompt2files.git"
+  },
+  "bugs": {
+    "url": "https://github.com/truss44/prompt2files/issues"
+  },
+  "homepage": "https://github.com/truss44/prompt2files"
 }
