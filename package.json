@@ -1,6 +1,6 @@
 {
   "name": "files2prompt",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "A CLI tool to read files/directories and format them as prompts for LLMs (e.g., XML for Claude). Cross-platform (Windows/WSL2/Linux).",
   "author": "Tracey Russell",
   "license": "MIT",
