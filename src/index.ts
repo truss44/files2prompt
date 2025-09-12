@@ -4,7 +4,16 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { Command } from 'commander';
 import ignore from 'ignore';
-import { fileURLToPath } from 'url';
+import { resetDocumentIndex } from './printing.js';
+import { processPath as processPathMod } from './walker.js';
+import { readGitignore as readGitignoreMod, readPathsFromStdin as readPathsFromStdinMod } from './utils.js';
+
+let OPT_RELATIVE = false;
+let OPT_QUIET = false;
+let OPT_MAX_FILES: number | null = null;
+let OPT_MAX_SIZE: number | null = null; // bytes
+let PROCESSED_COUNT = 0;
+let JSON_FIRST = true;
 
 // Language mapping for Markdown
 const EXT_TO_LANG: Record<string, string> = {
@@ -22,15 +31,18 @@ const EXT_TO_LANG: Record<string, string> = {
   yml: 'yaml',
   sh: 'bash',
   rb: 'ruby',
+  md: 'markdown',
+  txt: 'text',
+  csv: 'csv',
+  jsonl: 'jsonl',
+  pl: 'perl',
 };
 
 // Default patterns to always ignore
 const DEFAULT_IGNORES: string[] = ['.env', '.env.*', '.env*', '.gitignore'];
 
-// Global index for XML documents
 let globalIndex = 1;
 
-// Simple fnmatch implementation (case-sensitive, supports * and ?)
 function fnmatch(name: string, pattern: string): boolean {
   const regexStr = '^' + pattern
     .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
@@ -40,7 +52,17 @@ function fnmatch(name: string, pattern: string): boolean {
   return regex.test(name);
 }
 
-// Check if path should be ignored based on rules (matching basename)
+function parseSize(val: string): number {
+  const m = /^\s*(\d+)\s*([kKmMgG]?)\s*$/.exec(val);
+  if (!m) return Number.NaN;
+  const n = parseInt(m[1], 10);
+  const unit = m[2].toLowerCase();
+  if (unit === 'k') return n * 1024;
+  if (unit === 'm') return n * 1024 * 1024;
+  if (unit === 'g') return n * 1024 * 1024 * 1024;
+  return n;
+}
+
 function shouldIgnore(fullPath: string, rules: string[]): boolean {
   const basename = path.basename(fullPath);
   const stats = fs.existsSync(fullPath) ? fs.statSync(fullPath) : null;
@@ -70,7 +92,6 @@ function readGitignore(dir: string): string[] {
   return [];
 }
 
-// Add line numbers with padding
 function addLineNumbers(content: string): string {
   const lines = content.split('\n');
   if (lines.length === 0) return '';
@@ -83,12 +104,9 @@ function addLineNumbers(content: string): string {
   return numberedLines.join('\n');
 }
 
-// Write multi-line content using the writer (splits on \n and writes each line)
 function writeMultiLine(writer: (line: string) => void, content: string): void {
   content.split('\n').forEach((line) => writer(line));
 }
-
-// Print path in default format
 function printDefault(writer: (line: string) => void, filePath: string, content: string, lineNumbers: boolean): void {
   writer(filePath);
   writer('---');
@@ -111,6 +129,16 @@ function printAsXml(writer: (line: string) => void, filePath: string, content: s
   writeMultiLine(writer, content);
   writer('</document_content>');
   writer('</document>');
+  globalIndex++;
+}
+
+// Print path in JSON format (single-line object; caller manages array commas/wrapper)
+function printAsJson(writer: (line: string) => void, filePath: string, content: string, lineNumbers: boolean): void {
+  if (lineNumbers) {
+    content = addLineNumbers(content);
+  }
+  const obj = { index: globalIndex, source: filePath, content };
+  writer(JSON.stringify(obj));
   globalIndex++;
 }
 
@@ -149,7 +177,7 @@ function printPath(
   }
 }
 
-// Recursive directory walker (mimics os.walk logic)
+// Recursive directory walker
 function walkDir(
   root: string,
   extensions: string[],
@@ -162,6 +190,7 @@ function walkDir(
   writer: (line: string) => void,
   cxml: boolean,
   markdown: boolean,
+  json: boolean,
   lineNumbers: boolean
 ): void {
   let dirents = fs.readdirSync(root, { withFileTypes: true });
@@ -188,7 +217,7 @@ function walkDir(
     const relFiles = files.map((f) => path.relative(process.cwd(), path.join(root, f)));
     files = files.filter((_, idx) => !ig!.ignores(relFiles[idx]));
   } else {
-    // Fallback to local .gitignore rules (legacy behavior)
+    // Fallback to local .gitignore rules
     if (!ignoreGitignore) {
       gitignoreRules.push(...readGitignore(root));
     }
@@ -214,19 +243,62 @@ function walkDir(
   files.sort();
   for (const file of files) {
     const filePath = path.join(root, file);
+    // Enforce max files limit
+    if (OPT_MAX_FILES !== null && PROCESSED_COUNT >= OPT_MAX_FILES) {
+      return;
+    }
     try {
+      // Enforce max size limit
+      if (OPT_MAX_SIZE !== null) {
+        try {
+          const st = fs.statSync(filePath);
+          if (st.size > OPT_MAX_SIZE) {
+            if (!OPT_QUIET) {
+              console.error(`Warning: Skipping file ${filePath} due to size > ${OPT_MAX_SIZE} bytes`);
+            }
+            continue;
+          }
+        } catch {}
+      }
       const content = fs.readFileSync(filePath, 'utf8');
-      printPath(writer, filePath, content, cxml, markdown, lineNumbers);
+      const displayPath = OPT_RELATIVE ? path.relative(process.cwd(), filePath) : filePath;
+      if (json) {
+        if (!JSON_FIRST) writer(',');
+        printAsJson(writer, displayPath, content, lineNumbers);
+        JSON_FIRST = false;
+      } else {
+        printPath(writer, displayPath, content, cxml, markdown, lineNumbers);
+      }
+      PROCESSED_COUNT++;
     } catch (err) {
       if (err instanceof Error && 'code' in err && err.code === 'ENOENT') {
         // Ignore missing files
       } else {
-        console.error(`Warning: Skipping file ${filePath} due to encoding error`);
+        if (!OPT_QUIET) {
+          console.error(`Warning: Skipping file ${filePath} due to encoding error`);
+        }
       }
     }
   }
   for (const subdir of subdirs) {
-    walkDir(subdir, extensions, includeHidden, ignoreFilesOnly, ignoreGitignore, gitignoreRules, ignorePatterns, ig, writer, cxml, markdown, lineNumbers);
+    if (OPT_MAX_FILES !== null && PROCESSED_COUNT >= OPT_MAX_FILES) {
+      return;
+    }
+    walkDir(
+      subdir,
+      extensions,
+      includeHidden,
+      ignoreFilesOnly,
+      ignoreGitignore,
+      gitignoreRules,
+      ignorePatterns,
+      ig,
+      writer,
+      cxml,
+      markdown,
+      json,
+      lineNumbers
+    );
   }
 }
 
@@ -243,6 +315,7 @@ function processPath(
   writer: (line: string) => void,
   cxml: boolean,
   markdown: boolean,
+  json: boolean,
   lineNumbers: boolean
 ): void {
   if (fs.existsSync(p)) {
@@ -254,16 +327,56 @@ function processPath(
       if ((ig && ig.ignores(rel)) || shouldIgnore(p, gitignoreRules) || shouldIgnore(p, combinedIgnorePatterns)) {
         return;
       }
+      // Enforce max files limit
+      if (OPT_MAX_FILES !== null && PROCESSED_COUNT >= OPT_MAX_FILES) {
+        return;
+      }
       try {
+        // Enforce max size limit
+        if (OPT_MAX_SIZE !== null) {
+          try {
+            const st = fs.statSync(p);
+            if (st.size > OPT_MAX_SIZE) {
+              if (!OPT_QUIET) {
+                console.error(`Warning: Skipping file ${p} due to size > ${OPT_MAX_SIZE} bytes`);
+              }
+              return;
+            }
+          } catch {}
+        }
         const content = fs.readFileSync(p, 'utf8');
-        printPath(writer, p, content, cxml, markdown, lineNumbers);
+        const displayPath = OPT_RELATIVE ? path.relative(process.cwd(), p) : p;
+        if (json) {
+          if (!JSON_FIRST) writer(',');
+          printAsJson(writer, displayPath, content, lineNumbers);
+          JSON_FIRST = false;
+        } else {
+          printPath(writer, displayPath, content, cxml, markdown, lineNumbers);
+        }
+        PROCESSED_COUNT++;
       } catch (err) {
         if (!(err instanceof Error && 'code' in err && err.code === 'ENOENT')) {
-          console.error(`Warning: Skipping file ${p} due to encoding error`);
+          if (!OPT_QUIET) {
+            console.error(`Warning: Skipping file ${p} due to encoding error`);
+          }
         }
       }
     } else if (stats.isDirectory()) {
-      walkDir(p, extensions, includeHidden, ignoreFilesOnly, ignoreGitignore, gitignoreRules, ignorePatterns, ig, writer, cxml, markdown, lineNumbers);
+      walkDir(
+        p,
+        extensions,
+        includeHidden,
+        ignoreFilesOnly,
+        ignoreGitignore,
+        gitignoreRules,
+        ignorePatterns,
+        ig,
+        writer,
+        cxml,
+        markdown,
+        json,
+        lineNumbers
+      );
     }
   }
 }
@@ -282,8 +395,19 @@ function readPathsFromStdin(useNull: boolean): string[] {
 }
 
 // Main CLI
-function main(): void {
+export function main(): void {
   const program = new Command();
+  // Resolve version from package.json
+  let pkgVersion = '0.0.0';
+  try {
+    const pkgUrl = new URL('../package.json', import.meta.url);
+    const pkgStr = fs.readFileSync(pkgUrl, 'utf8');
+    const pkgJson = JSON.parse(pkgStr);
+    if (typeof pkgJson.version === 'string') {
+      pkgVersion = pkgJson.version;
+    }
+  } catch {}
+
   program
     .name('files2prompt')
     .description(
@@ -309,7 +433,7 @@ function main(): void {
       'Contents of file1.py\n' +
       '```'
     )
-    .version('1.0.0')
+    .version(pkgVersion)
     .argument('[paths...]', 'Paths to files or directories')
     .option('-e, --extension <ext>', 'Filter by extension (repeatable, e.g., -e py -e js)', (v: string, prev: string[]) => prev.concat(v), [] as string[])
     .option('--include-hidden', 'Include files and folders starting with .')
@@ -320,15 +444,37 @@ function main(): void {
     .option('-c, --cxml', 'Output in XML format optimized for LLM/Claude long context')
     .option('-m, --markdown', 'Output Markdown with fenced code blocks')
     .option('-n, --line-numbers', 'Add line numbers to output')
-    .option('-0, --null', 'Use NUL as separator when reading from stdin');
+    .option('-j, --json', 'Output as a JSON array of {index, source, content}')
+    .option('-0, --null', 'Use NUL as separator when reading from stdin')
+    .option('--relative', 'Output paths relative to current working directory')
+    .option('--quiet', 'Suppress warnings to stderr')
+    .option('--max-files <n>', 'Maximum number of files to process', (v: string) => parseInt(v, 10))
+    .option('--max-size <bytes>', 'Maximum file size to include (bytes; supports k/m/g suffix)', (v: string) => parseSize(v));
 
+  program.showHelpAfterError(true);
   program.parse(process.argv);
   const opts = program.opts();
   const argPaths = program.args as string[];
 
-  globalIndex = 1;
+  resetDocumentIndex();
+  // Initialize module-scope options
+  OPT_RELATIVE = !!opts.relative;
+  OPT_QUIET = !!opts.quiet;
+  OPT_MAX_FILES = Number.isFinite(opts.maxFiles) && typeof opts.maxFiles === 'number' ? opts.maxFiles : null;
+  OPT_MAX_SIZE = Number.isFinite(opts.maxSize) && typeof opts.maxSize === 'number' ? opts.maxSize : null;
+  PROCESSED_COUNT = 0;
   let gitignoreRules: string[] = [];
+  JSON_FIRST = true;
 
+  // Ensure output directory exists, if writing to a file
+  if (opts.output) {
+    try {
+      const outDir = path.dirname(opts.output);
+      if (outDir && outDir !== '.') {
+        fs.mkdirSync(outDir, { recursive: true });
+      }
+    } catch {}
+  }
   const outputStream: NodeJS.WritableStream = opts.output
     ? fs.createWriteStream(opts.output, { encoding: 'utf8' })
     : process.stdout;
@@ -357,12 +503,12 @@ function main(): void {
     }
   };
 
-  const stdinPaths = readPathsFromStdin(!!opts.null);
-  const allPaths = [...argPaths, ...stdinPaths];
+  const stdinPaths = readPathsFromStdinMod(!!opts.null);
+  let allPaths = [...argPaths, ...stdinPaths];
 
   if (allPaths.length === 0) {
-    if (opts.output) outputStream.end();
-    return;
+    // Default to current directory if nothing was provided via args or stdin
+    allPaths = ['.'];
   }
 
   // Build project-root ignore instance from CWD .gitignore (once)
@@ -371,10 +517,35 @@ function main(): void {
     const rootGitignorePath = path.join(process.cwd(), '.gitignore');
     if (fs.existsSync(rootGitignorePath)) {
       ig = ignore();
-      const rules = readGitignore(process.cwd());
+      const rules = readGitignoreMod(process.cwd());
       if (rules.length > 0) ig.add(rules);
     }
   }
+
+  // Normalize extensions to ensure they have a leading dot (e.g., "ts" -> ".ts")
+  const normalizedExtensions: string[] = (Array.isArray(opts.extension) ? opts.extension : []).map((e: string) =>
+    e.startsWith('.') ? e : `.${e}`
+  );
+
+  // JSON wrapper begin
+  if (opts.json) {
+    writer('[');
+  }
+
+  // Prepare writer for walker: in JSON mode, emit commas between items
+  const walkerWriter: (line: string) => void = (!!opts.json)
+    ? (line: string) => { if (!JSON_FIRST) writer(','); writer(line); JSON_FIRST = false; }
+    : writer;
+
+  // Build walker options
+  const counter = { count: 0 };
+  const options = {
+    quiet: !!opts.quiet,
+    pathMapper: !!opts.relative ? (p: string) => path.relative(process.cwd(), p) : undefined,
+    maxFiles: OPT_MAX_FILES === null ? undefined : OPT_MAX_FILES,
+    maxSize: OPT_MAX_SIZE === null ? undefined : OPT_MAX_SIZE,
+    counter,
+  } as const;
 
   for (let i = 0; i < allPaths.length; i++) {
     const p = allPaths[i];
@@ -386,25 +557,27 @@ function main(): void {
     if (!opts.ignoreGitignore) {
       const dir = path.dirname(p);
       if (fs.existsSync(dir)) {
-        gitignoreRules.push(...readGitignore(dir));
+        gitignoreRules.push(...readGitignoreMod(dir));
       }
     }
     if (opts.cxml && i === 0) {
       writer('<documents>');
     }
-    processPath(
+    processPathMod(
       p,
-      Array.isArray(opts.extension) ? opts.extension : [],
+      normalizedExtensions,
       !!opts.includeHidden,
       !!opts.ignoreFilesOnly,
       !!opts.ignoreGitignore,
       gitignoreRules,
       Array.isArray(opts.ignore) ? opts.ignore : [],
       ig,
-      writer,
+      walkerWriter,
       !!opts.cxml,
       !!opts.markdown,
-      !!opts.lineNumbers
+      !!opts.lineNumbers,
+      !!opts.json,
+      options
     );
   }
 
@@ -412,27 +585,22 @@ function main(): void {
     writer('</documents>');
   }
 
+  // JSON wrapper end
+  if (opts.json) {
+    writer(']');
+  }
+
   if (opts.output) {
     outputStream.end();
   }
-}
 
-// Run main (with error handling)
-const isDirectRun = (() => {
-  try {
-    const thisFile = fileURLToPath(import.meta.url);
-    const invoked = process.argv[1] ? path.resolve(process.argv[1]) : '';
-    return thisFile === invoked;
-  } catch {
-    return false;
-  }
-})();
-
-if (isDirectRun) {
-  try {
-    main();
-  } catch (err) {
-    console.error(err);
-    process.exit(1);
+  const TOTAL_PROCESSED = PROCESSED_COUNT + (counter.count ?? 0);
+  if (TOTAL_PROCESSED === 0) {
+    if (!OPT_QUIET) {
+      console.error('No files were processed. Check your paths, filters, and ignore settings.');
+    }
+    try { process.exit(2); } catch {}
   }
 }
+
+// Note: Do not auto-run main() here. The CLI entrypoint in src/cli.ts will import and execute main().
