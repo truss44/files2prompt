@@ -7,6 +7,25 @@ export function resetDocumentIndex(): void {
   globalIndex = 1;
 }
 
+// Print path as JSON object (no surrounding commas/brackets)
+export function printAsJson(
+  writer: (line: string) => void,
+  filePath: string,
+  content: string,
+  lineNumbers: boolean
+): void {
+  if (lineNumbers) {
+    content = addLineNumbers(content);
+  }
+  const obj = {
+    index: globalIndex,
+    source: filePath,
+    content,
+  };
+  writer(JSON.stringify(obj));
+  globalIndex++;
+}
+
 // Print path in default format
 export function printDefault(
   writer: (line: string) => void,

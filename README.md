@@ -37,16 +37,21 @@ Requires Node.js 18+.
 
 Get up and running in seconds with the most common commands.
 
-- Basic: process a directory in the default format
-
-  ```bash
-  files2prompt ./src
-  ```
+- Note: If you don't pass any paths, it now defaults to the current directory (`.`).
+```bash
+files2prompt ./src
+```
 
 - XML optimized for LLMs (with line numbers)
 
+```bash
+files2prompt -c --line-numbers .
+```
+
+- JSON output for tooling (first 100 files)
+
   ```bash
-  files2prompt -c --line-numbers .
+  files2prompt --json --max-files 100 . > files.json
   ```
 
 - Markdown output with fenced code blocks and language hints
@@ -67,6 +72,12 @@ Get up and running in seconds with the most common commands.
   files2prompt -c -o codebase.xml .
   ```
 
+- Relative paths and size limit (200 KB)
+
+  ```bash
+  files2prompt --relative --max-size 200k -o small.txt .
+  ```
+
 ## Usage
 
 ```bash
@@ -75,6 +86,7 @@ files2prompt [options] [paths...]
 
 - `[paths...]`: One or more file/directory paths (e.g., `./src` or `file.py`). If none provided (and no stdin), defaults to the current directory (`.`).
 - Output goes to stdout (or `--output` file).
+- If no files were processed (due to filters or ignores), the CLI exits with code `2` and prints a helpful message (suppressed with `--quiet`).
 
 ### Options
 - `-e, --extension <ext>`: Filter files by extension (repeatable, e.g., `-e py -e ts`). Case-sensitive.
@@ -87,6 +99,11 @@ files2prompt [options] [paths...]
 - `-m, --markdown`: Output Markdown with fenced code blocks and language syntax highlighting.
 - `-n, --line-numbers`: Prefix content with line numbers (padded for alignment; useful for LLM code reviews).
 - `-0, --null`: Use NUL (`\0`) as path separator when reading from stdin (e.g., for `find -print0`).
+- `-j, --json`: Output a JSON array of objects: `{ index, source, content }`.
+- `--relative`: Output paths relative to the current working directory.
+- `--quiet`: Suppress warnings to stderr.
+- `--max-files <n>`: Process at most `n` files (useful to cap very large trees).
+- `--max-size <bytes>`: Skip files larger than the given size. Supports k/m/g suffixes (e.g., `200k`, `5m`, `1g`).
 
 Run `files2prompt --help` for full details.
 
@@ -218,6 +235,18 @@ If content has conflicting tags, consider post-processing or using Markdown inst
 - Permissions: Run with sufficient read access; tool doesn't modify files.
 - Large Directories: Sync FS ops may be slow for millions of files—consider piping git ls-files for repos.
 - WSL2/Windows Paths: Node handles mixed separators; use forward slashes in commands for consistency.
+
+### Common mistakes
+
+- `node -c` is a Node.js flag (it does not mean "cxml"). To use XML mode, run:
+
+  ```bash
+  files2prompt -c .
+  # or locally
+  node dist/cli.js -c .
+  ```
+
+- If you see no output, verify that your filters (`-e`, `-i/--ignore`, `.gitignore`) aren't excluding everything. The CLI exits with code `2` when zero files are processed (unless `--quiet`).
 
 ### Development & Contributing
 

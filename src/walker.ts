@@ -2,7 +2,15 @@ import * as fs from 'fs';
 import * as path from 'path';
 import ignore from 'ignore';
 import { DEFAULT_IGNORES, readGitignore, shouldIgnore, fnmatch } from './utils';
-import { printPath } from './printing';
+import { printPath, printAsJson } from './printing';
+
+export interface WalkOptions {
+  quiet?: boolean;
+  pathMapper?: (p: string) => string;
+  maxFiles?: number;
+  maxSize?: number; // in bytes
+  counter?: { count: number };
+}
 
 // Recursive directory walker (mimics os.walk logic)
 export function walkDir(
@@ -17,7 +25,9 @@ export function walkDir(
   writer: (line: string) => void,
   cxml: boolean,
   markdown: boolean,
-  lineNumbers: boolean
+  json: boolean,
+  lineNumbers: boolean,
+  options: WalkOptions = {}
 ): void {
   let dirents = fs.readdirSync(root, { withFileTypes: true });
   if (!includeHidden) {
@@ -69,14 +79,38 @@ export function walkDir(
   files.sort();
   for (const file of files) {
     const filePath = path.join(root, file);
+    // Enforce maxFiles limit, if specified
+    if (options.maxFiles !== undefined && options.counter && options.counter.count >= options.maxFiles) {
+      return;
+    }
     try {
+      // Enforce maxSize limit, if specified
+      if (options.maxSize !== undefined) {
+        try {
+          const st = fs.statSync(filePath);
+          if (st.size > options.maxSize) {
+            if (!options.quiet) {
+              console.error(`Warning: Skipping file ${filePath} due to size > ${options.maxSize} bytes`);
+            }
+            continue;
+          }
+        } catch {}
+      }
       const content = fs.readFileSync(filePath, 'utf8');
-      printPath(writer, filePath, content, cxml, markdown, lineNumbers);
+      const displayPath = options.pathMapper ? options.pathMapper(filePath) : filePath;
+      if (json) {
+        printAsJson(writer, displayPath, content, lineNumbers);
+      } else {
+        printPath(writer, displayPath, content, cxml, markdown, lineNumbers);
+      }
+      if (options.counter) options.counter.count++;
     } catch (err: any) {
       if (err && err.code === 'ENOENT') {
         // Ignore missing files
       } else {
-        console.error(`Warning: Skipping file ${filePath} due to encoding error`);
+        if (!options.quiet) {
+          console.error(`Warning: Skipping file ${filePath} due to encoding error`);
+        }
       }
     }
   }
@@ -93,7 +127,9 @@ export function walkDir(
       writer,
       cxml,
       markdown,
-      lineNumbers
+      json,
+      lineNumbers,
+      options
     );
   }
 }
@@ -111,7 +147,9 @@ export function processPath(
   writer: (line: string) => void,
   cxml: boolean,
   markdown: boolean,
-  lineNumbers: boolean
+  json: boolean,
+  lineNumbers: boolean,
+  options: WalkOptions = {}
 ): void {
   if (fs.existsSync(p)) {
     const stats = fs.statSync(p);
@@ -123,11 +161,31 @@ export function processPath(
         return;
       }
       try {
+        // Enforce maxSize limit, if specified
+        if (options.maxSize !== undefined) {
+          try {
+            const st = fs.statSync(p);
+            if (st.size > options.maxSize) {
+              if (!options.quiet) {
+                console.error(`Warning: Skipping file ${p} due to size > ${options.maxSize} bytes`);
+              }
+              return;
+            }
+          } catch {}
+        }
         const content = fs.readFileSync(p, 'utf8');
-        printPath(writer, p, content, cxml, markdown, lineNumbers);
+        const displayPath = options.pathMapper ? options.pathMapper(p) : p;
+        if (json) {
+          printAsJson(writer, displayPath, content, lineNumbers);
+        } else {
+          printPath(writer, displayPath, content, cxml, markdown, lineNumbers);
+        }
+        if (options.counter) options.counter.count++;
       } catch (err: any) {
         if (!(err && err.code === 'ENOENT')) {
-          console.error(`Warning: Skipping file ${p} due to encoding error`);
+          if (!options.quiet) {
+            console.error(`Warning: Skipping file ${p} due to encoding error`);
+          }
         }
       }
     } else if (stats.isDirectory()) {
@@ -143,7 +201,9 @@ export function processPath(
         writer,
         cxml,
         markdown,
-        lineNumbers
+        json,
+        lineNumbers,
+        options
       );
     }
   }
