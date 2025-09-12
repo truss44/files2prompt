@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import ignore from 'ignore';
-import { DEFAULT_IGNORES, readGitignore, shouldIgnore, fnmatch } from './utils.js';
+import { DEFAULT_IGNORES, readGitignore, shouldIgnore, fnmatch, isBinaryFile } from './utils.js';
 import { printPath, printAsJson } from './printing.js';
 
 export interface WalkOptions {
@@ -84,6 +84,10 @@ export function walkDir(
       return;
     }
     try {
+      // Skip binary files
+      if (isBinaryFile(filePath)) {
+        continue;
+      }
       // Enforce maxSize limit, if specified
       if (options.maxSize !== undefined) {
         try {
@@ -161,6 +165,10 @@ export function processPath(
         return;
       }
       try {
+        // Skip binary files
+        if (isBinaryFile(p)) {
+          return;
+        }
         // Enforce maxSize limit, if specified
         if (options.maxSize !== undefined) {
           try {
