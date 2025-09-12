@@ -4,15 +4,15 @@
   "description": "A CLI tool to read files/directories and format them as prompts for LLMs (e.g., XML for Claude). Cross-platform (Windows/WSL2/Linux).",
   "author": "Tracey Russell",
   "license": "MIT",
-  "main": "dist/cli.js",
+  "main": "dist/index.js",
   "bin": {
-    "prompt2files": "dist/cli.js"
+    "prompt2files": "dist/index.js"
   },
   "scripts": {
     "build": "rm -rf dist && tsc",
     "prepublishOnly": "npm run build",
-    "start": "node dist/cli.js",
-    "dev": "tsx src/cli.ts",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage"

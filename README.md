@@ -221,11 +221,11 @@ If content has conflicting tags, consider post-processing or using Markdown inst
 
 ### Development & Contributing
 
-- Setup: Clone repo, npm install, npm run build, npm run dev -- [options] for testing.
-- Build: npm run build (compiles TS to JS in ./dist).
-- Test: npm test (placeholder; add Jest/Mocha for real tests).
-- Commits: Use Conventional Commits (e.g., feat: add json support) for semantic-release.
-- Releasing: Pushes to main trigger auto-release via semantic-release (npm publish, changelog, GitHub tags).
+- Setup: Clone repo, `npm install`, `npm run build`, `npm run dev -- [options]` to run from `src/index.ts`.
+- Build: `npm run build` (cleans `dist/` and compiles TS to JS in `./dist`).
+- Test: `npm test` (Jest). Use `npm run test:watch` during development and `npm run test:coverage` for coverage.
+- Commits: Use Conventional Commits (e.g., `feat: add json support`) for semantic-release.
+- Releasing: Pushes to `main` trigger auto-release via semantic-release (npm publish, changelog, GitHub tags).
 - Contribute: Fork, PR with tests/docs. Issues welcome!
 
 ### License
