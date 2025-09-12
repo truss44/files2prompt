@@ -1,6 +1,6 @@
 # prompt2files
 
-[![npm version](https://badge.fury.io/js/prompt2files.svg)](https://badge.fury.io/js/prompt2files)
+[![NPM Downloads](https://img.shields.io/npm/d18m/prompt2files)](https://www.npmjs.com/package/prompt2files)
 [![CI](https://github.com/truss44/prompt2files/actions/workflows/node.js.yml/badge.svg?branch=main)](https://github.com/truss44/prompt2files/actions)
 
 A cross-platform CLI tool to read files and directories, recursively process them (respecting `.gitignore` and custom ignores), and format their contents as structured prompts optimized for Large Language Models (LLMs) like Claude or GPT. Supports XML output tailored for long-context windows, Markdown code blocks, or a simple default format. Built with TypeScript for Node.js 18+; works on Windows, macOS, and Linux (including WSL2).
