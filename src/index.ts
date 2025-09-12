@@ -4,6 +4,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { Command } from 'commander';
 import ignore from 'ignore';
+import { fileURLToPath } from 'url';
 
 // Language mapping for Markdown
 const EXT_TO_LANG: Record<string, string> = {
@@ -332,8 +333,28 @@ function main(): void {
     ? fs.createWriteStream(opts.output, { encoding: 'utf8' })
     : process.stdout;
 
+  // Gracefully handle broken pipe (e.g., when piping to `head`)
+  let brokenPipe = false;
+  const onPipeError = (err: any) => {
+    if (err && err.code === 'EPIPE') {
+      brokenPipe = true;
+      try { (outputStream as any).end?.(); } catch {}
+      // Exit cleanly; avoid noisy stack trace
+      try { process.exit(0); } catch {}
+    }
+  };
+  (outputStream as any).on?.('error', onPipeError);
+  if (!opts.output) {
+    process.stdout.on('error', onPipeError);
+  }
+
   const writer = (line: string): void => {
-    outputStream.write(line + '\n');
+    if (brokenPipe) return;
+    try {
+      outputStream.write(line + '\n');
+    } catch (err: any) {
+      onPipeError(err);
+    }
   };
 
   const stdinPaths = readPathsFromStdin(!!opts.null);
@@ -397,7 +418,17 @@ function main(): void {
 }
 
 // Run main (with error handling)
-if (require.main === module) {
+const isDirectRun = (() => {
+  try {
+    const thisFile = fileURLToPath(import.meta.url);
+    const invoked = process.argv[1] ? path.resolve(process.argv[1]) : '';
+    return thisFile === invoked;
+  } catch {
+    return false;
+  }
+})();
+
+if (isDirectRun) {
   try {
     main();
   } catch (err) {
