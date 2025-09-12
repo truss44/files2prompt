@@ -1,0 +1,55 @@
+{
+  "name": "prompt2files",
+  "version": "1.0.0",
+  "description": "A CLI tool to read files/directories and format them as prompts for LLMs (e.g., XML for Claude). Cross-platform (Windows/WSL2/Linux).",
+  "author": "Tracey Russell",
+  "license": "MIT",
+  "main": "dist/cli.js",
+  "bin": {
+    "prompt2files": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "rm -rf dist && tsc",
+    "prepublishOnly": "npm run build",
+    "start": "node dist/cli.js",
+    "dev": "tsx src/cli.ts",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
+  },
+  "keywords": [
+    "cli",
+    "llm",
+    "prompt",
+    "files",
+    "codebase",
+    "claude",
+    "xml"
+  ],
+  "type": "commonjs",
+  "dependencies": {
+    "commander": "^14.0.0",
+    "ignore": "^7.0.5"
+  },
+  "devDependencies": {
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/commit-analyzer": "^13.0.1",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/github": "^11.0.6",
+    "@semantic-release/npm": "^12.0.2",
+    "@semantic-release/release-notes-generator": "^14.1.0",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.3.1",
+    "jest": "^30.1.3",
+    "ts-jest": "^29.4.1",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/truss44/prompt2files.git"
+  }
+}
