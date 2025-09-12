@@ -1,8 +1,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import ignore from 'ignore';
-import { DEFAULT_IGNORES, readGitignore, shouldIgnore, fnmatch } from './utils';
-import { printPath, printAsJson } from './printing';
+import { DEFAULT_IGNORES, readGitignore, shouldIgnore, fnmatch } from './utils.js';
+import { printPath, printAsJson } from './printing.js';
 
 export interface WalkOptions {
   quiet?: boolean;

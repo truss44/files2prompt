@@ -26,9 +26,12 @@ Install globally for easy use:
 npm install -g files2prompt
 ```
 
-Or run directly without installation (via npx):
+Or run directly without installation (via npx). You can use any of these aliases:
 ```bash
 npx files2prompt [options] [paths...]
+npx f2p [options] [paths...]
+npx files2prompt-cli [options] [paths...]
+npx f2p-cli [options] [paths...]
 ```
 
 Requires Node.js 18+.
@@ -41,6 +44,8 @@ Get up and running in seconds with the most common commands.
 ```bash
 files2prompt ./src
 ```
+
+You can also run via npx aliases, for example: `npx f2p ./src`.
 
 - XML optimized for LLMs (with line numbers)
 
@@ -83,6 +88,7 @@ files2prompt -c --line-numbers .
 ```bash
 files2prompt [options] [paths...]
 ```
+Aliases: f2p, files2prompt-cli, f2p-cli
 
 - `[paths...]`: One or more file/directory paths (e.g., `./src` or `file.py`). If none provided (and no stdin), defaults to the current directory (`.`).
 - Output goes to stdout (or `--output` file).
@@ -105,7 +111,7 @@ files2prompt [options] [paths...]
 - `--max-files <n>`: Process at most `n` files (useful to cap very large trees).
 - `--max-size <bytes>`: Skip files larger than the given size. Supports k/m/g suffixes (e.g., `200k`, `5m`, `1g`).
 
-Run `files2prompt --help` for full details.
+Run `files2prompt --help` or `f2p --help` for full details.
 
 ### Examples
 

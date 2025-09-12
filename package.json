@@ -6,7 +6,10 @@
   "license": "MIT",
   "main": "./dist/index.js",
   "bin": {
-    "files2prompt": "./dist/cli.js"
+    "files2prompt": "./dist/cli.js",
+    "files2prompt-cli": "./dist/cli.js",
+    "f2p": "./dist/cli.js",
+    "f2p-cli": "./dist/cli.js"
   },
   "type": "module",
   "types": "./dist/index.d.ts",

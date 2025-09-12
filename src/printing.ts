@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { EXT_TO_LANG, addLineNumbers, writeMultiLine } from './utils';
+import { EXT_TO_LANG, addLineNumbers, writeMultiLine } from './utils.js';
 
 let globalIndex = 1;
 
