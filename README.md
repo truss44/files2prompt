@@ -1,11 +1,11 @@
-# prompt2files
+# files2prompt
 
-[![NPM Downloads](https://img.shields.io/npm/d18m/prompt2files)](https://www.npmjs.com/package/prompt2files)
-[![CI](https://github.com/truss44/prompt2files/actions/workflows/node.js.yml/badge.svg?branch=main)](https://github.com/truss44/prompt2files/actions)
+[![NPM Downloads](https://img.shields.io/npm/d18m/files2prompt)](https://www.npmjs.com/package/files2prompt)
+[![CI](https://github.com/truss44/files2prompt/actions/workflows/node.js.yml/badge.svg?branch=main)](https://github.com/truss44/files2prompt/actions)
 
 A cross-platform CLI tool to read files and directories, recursively process them (respecting `.gitignore` and custom ignores), and format their contents as structured prompts optimized for Large Language Models (LLMs) like Claude or GPT. Supports XML output tailored for long-context windows, Markdown code blocks, or a simple default format. Built with TypeScript for Node.js 18+; works on Windows, macOS, and Linux (including WSL2).
 
-This is a Node.js/TypeScript port of [files-to-prompt](https://github.com/simonw/files-to-prompt), with enhancements for LLM consumption (e.g., indexed XML documents for easy retrieval in prompts).
+This is a Node.js/TypeScript application inspired by [files-to-prompt](https://github.com/simonw/files-to-prompt), with enhancements for LLM consumption (e.g., indexed XML documents for easy retrieval in prompts).
 
 ## Features
 - **Recursive Processing**: Walk directories, filter by extensions, include/exclude hidden files.
@@ -23,12 +23,12 @@ This is a Node.js/TypeScript port of [files-to-prompt](https://github.com/simonw
 ## Installation
 Install globally for easy use:
 ```bash
-npm install -g prompt2files
+npm install -g files2prompt
 ```
 
 Or run directly without installation (via npx):
 ```bash
-npx prompt2files [options] [paths...]
+npx files2prompt [options] [paths...]
 ```
 
 Requires Node.js 18+.
@@ -40,37 +40,37 @@ Get up and running in seconds with the most common commands.
 - Basic: process a directory in the default format
 
   ```bash
-  prompt2files ./src
+  files2prompt ./src
   ```
 
 - XML optimized for LLMs (with line numbers)
 
   ```bash
-  prompt2files -c --line-numbers .
+  files2prompt -c --line-numbers .
   ```
 
 - Markdown output with fenced code blocks and language hints
 
   ```bash
-  prompt2files -m ./src
+  files2prompt -m ./src
   ```
 
 - Filter by extension and respect .gitignore rules (default behavior)
 
   ```bash
-  prompt2files -e ts -e js .
+  files2prompt -e ts -e js .
   ```
 
 - Write the output to a file
 
   ```bash
-  prompt2files -c -o codebase.xml .
+  files2prompt -c -o codebase.xml .
   ```
 
 ## Usage
 
 ```bash
-prompt2files [options] [paths...]
+files2prompt [options] [paths...]
 ```
 
 - `[paths...]`: One or more file/directory paths (e.g., `./src` or `file.py`). If none provided, reads from stdin.
@@ -88,13 +88,13 @@ prompt2files [options] [paths...]
 - `-n, --line-numbers`: Prefix content with line numbers (padded for alignment; useful for LLM code reviews).
 - `-0, --null`: Use NUL (`\0`) as path separator when reading from stdin (e.g., for `find -print0`).
 
-Run `prompt2files --help` for full details.
+Run `files2prompt --help` for full details.
 
 ### Examples
 
 #### Basic: Process a Directory (Default Format)
 ```bash
-prompt2files ./src
+files2prompt ./src
 ```
 
 Output:
@@ -117,7 +117,7 @@ export function util() { /* ... */ }
 Ideal for feeding entire codebases into LLMs. Indices allow referencing (e.g., "Analyze document 1, lines 10-20").
 
 ```bash
-prompt2files -c --line-numbers ./src
+files2prompt -c --line-numbers ./src
 ```
 
 ### Output (wrapped in `<documents>`):
@@ -148,7 +148,7 @@ prompt2files -c --line-numbers ./src
 #### Markdown for Documentation/Sharing
 
 ```bash
-prompt2files -m ./src
+files2prompt -m ./src
 ```
 
 Output:
@@ -176,7 +176,7 @@ export function util() { /* ... */ }
 List TypeScript files, ignoring tests and node_modules, via stdin:
 
 ```bash
-find . -name "*.ts" -not -path "*/node_modules/*" -not -path "*/tests/*" | prompt2files -c -e ts -0
+find . -name "*.ts" -not -path "*/node_modules/*" -not -path "*/tests/*" | files2prompt -c -e ts -0
 ```
 
 (Uses --null if paths are NUL-separated; adjust with find ... -print0.)
@@ -184,13 +184,13 @@ find . -name "*.ts" -not -path "*/node_modules/*" -not -path "*/tests/*" | promp
 #### Output to File
 
 ```bash
-prompt2files -o output.txt ./src
+files2prompt -o output.txt ./src
 ```
 
 #### Output to File + Hidden Files
 
 ```bash
-prompt2files --include-hidden -c -o codebase.xml .
+files2prompt --include-hidden -c -o codebase.xml .
 ```
 
 Generates codebase.xml with all files (including .env, etc.) in XML format.
@@ -214,7 +214,7 @@ If content has conflicting tags, consider post-processing or using Markdown inst
 ### Troubleshooting
 
 - Encoding Errors: Non-UTF8 files (e.g., binaries) are skipped with a warning to stderr.
-- Stdin on Windows: Use type file.txt | prompt2files or PowerShell equivalents. For NUL, ensure tools output \0.
+- Stdin on Windows: Use type file.txt | files2prompt or PowerShell equivalents. For NUL, ensure tools output \0.
 - Permissions: Run with sufficient read access; tool doesn't modify files.
 - Large Directories: Sync FS ops may be slow for millions of files—consider piping git ls-files for repos.
 - WSL2/Windows Paths: Node handles mixed separators; use forward slashes in commands for consistency.

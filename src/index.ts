@@ -284,7 +284,7 @@ function readPathsFromStdin(useNull: boolean): string[] {
 function main(): void {
   const program = new Command();
   program
-    .name('prompt2files')
+    .name('files2prompt')
     .description(
       'Takes one or more paths to files or directories and outputs every file, recursively, each one preceded with its filename.\n' +
       '\nDefault format:\n' +
