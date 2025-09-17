@@ -1,3 +1,9 @@
+## [2.2.1](https://github.com/truss44/files2prompt/compare/v2.2.0...v2.2.1) (2025-09-17)
+
+### Bug Fixes
+
+* **deps:** bump commander from 14.0.0 to 14.0.1 in the production group ([eb136e2](https://github.com/truss44/files2prompt/commit/eb136e2548506597a980e24530d4e1a4f4deb9d3))
+
 ## [2.2.0](https://github.com/truss44/files2prompt/compare/v2.1.0...v2.2.0) (2025-09-12)
 
 ### Features
