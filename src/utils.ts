@@ -17,6 +17,11 @@ export const EXT_TO_LANG: Record<string, string> = {
   yml: 'yaml',
   sh: 'bash',
   rb: 'ruby',
+  md: 'markdown',
+  txt: 'text',
+  csv: 'csv',
+  jsonl: 'jsonl',
+  pl: 'perl',
 };
 
 // Default patterns to always ignore

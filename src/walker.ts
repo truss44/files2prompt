@@ -12,7 +12,7 @@ export interface WalkOptions {
   counter?: { count: number };
 }
 
-// Recursive directory walker (mimics os.walk logic)
+// Recursive directory walker
 export function walkDir(
   root: string,
   extensions: string[],
@@ -53,7 +53,7 @@ export function walkDir(
     const relFiles = files.map((f) => path.relative(process.cwd(), path.join(root, f)));
     files = files.filter((_, idx) => !ig!.ignores(relFiles[idx]));
   } else {
-    // Fallback to local .gitignore rules (legacy behavior)
+    // Fallback to local .gitignore rules
     if (!ignoreGitignore) {
       gitignoreRules.push(...readGitignore(root));
     }
