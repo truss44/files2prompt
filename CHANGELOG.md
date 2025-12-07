@@ -1,3 +1,9 @@
+## [2.2.2](https://github.com/truss44/files2prompt/compare/v2.2.1...v2.2.2) (2025-12-07)
+
+### Bug Fixes
+
+* add glob version overrides to address security vulnerabilities ([4c038ea](https://github.com/truss44/files2prompt/commit/4c038eabaa78cb67759a23cc3997183b0c653bcb))
+
 ## [2.2.1](https://github.com/truss44/files2prompt/compare/v2.2.0...v2.2.1) (2025-09-17)
 
 ### Bug Fixes
