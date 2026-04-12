@@ -1,3 +1,9 @@
+## [2.2.3](https://github.com/truss44/files2prompt/compare/v2.2.2...v2.2.3) (2026-04-12)
+
+### Bug Fixes
+
+* use GH_TOKEN PAT for release to bypass branch protection ([f6c24be](https://github.com/truss44/files2prompt/commit/f6c24bea185bec6f130495c42fc99f6c3e9405a0))
+
 ## [2.2.2](https://github.com/truss44/files2prompt/compare/v2.2.1...v2.2.2) (2025-12-07)
 
 ### Bug Fixes
