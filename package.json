@@ -63,8 +63,14 @@
   "overrides": {
     "glob": "^10.5.0",
     "npm": {
-      "glob": "^10.5.0"
-    }
+      "glob": "^10.5.0",
+      "brace-expansion": "^2.0.3"
+    },
+    "tinyglobby": {
+      "picomatch": "^4.0.4"
+    },
+    "brace-expansion": "^2.0.3",
+    "picomatch": "^4.0.4"
   },
   "engines": {
     "node": ">=18.0.0"
