@@ -25,7 +25,7 @@
   ],
   "scripts": {
     "build": "rm -rf dist && tsc",
-    "prepublishOnly": "npm run build",
+    "prepublishOnly": "pnpm run build",
     "start": "node dist/cli.js",
     "dev": "tsx src/index.ts",
     "test": "jest",
