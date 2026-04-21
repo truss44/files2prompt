@@ -256,7 +256,7 @@ If content has conflicting tags, consider post-processing or using Markdown inst
 
 ### Development & Contributing
 
-- Setup: Clone repo, `pnpm install`, `pnpm run build`, `pnpm run dev -- [options]` to run from `src/index.ts`.
+- Setup: Clone repo, `pnpm install`, `pnpm build`, `pnpm dev -- [options]` to run from `src/index.ts`.
 - Build: `pnpm build` (cleans `dist/` and compiles TS to JS in `./dist`).
 - Test: `pnpm test` (Jest). Use `pnpm test:watch` during development and `pnpm test:coverage` for coverage.
 - Commits: Use Conventional Commits (e.g., `feat: add json support`) for semantic-release.
