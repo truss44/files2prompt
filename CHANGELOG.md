@@ -1,3 +1,9 @@
+## [2.2.4](https://github.com/truss44/files2prompt/compare/v2.2.3...v2.2.4) (2026-04-21)
+
+### Bug Fixes
+
+* install pnpm before setup-node to fix cache error ([c88fac4](https://github.com/truss44/files2prompt/commit/c88fac474d259687afb392b605fece9f2631587d))
+
 ## [2.2.3](https://github.com/truss44/files2prompt/compare/v2.2.2...v2.2.3) (2026-04-12)
 
 ### Bug Fixes
