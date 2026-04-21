@@ -23,6 +23,7 @@
 !.yamllint.yaml
 !.configurations/
 !.releaserc.json
+!.npmrc
 
 # === Rules for root dir ===
 /core
