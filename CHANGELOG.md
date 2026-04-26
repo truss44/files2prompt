@@ -1,3 +1,9 @@
+## [2.2.5](https://github.com/truss44/files2prompt/compare/v2.2.4...v2.2.5) (2026-04-26)
+
+### Bug Fixes
+
+* correct pnpm action setup order in workflow ([98bcc4d](https://github.com/truss44/files2prompt/commit/98bcc4d6ee36af1c51a25f79797521157f8ceb54))
+
 ## [2.2.4](https://github.com/truss44/files2prompt/compare/v2.2.3...v2.2.4) (2026-04-21)
 
 ### Bug Fixes
