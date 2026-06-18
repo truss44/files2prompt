@@ -1,4 +1,4 @@
-import { printAsMarkdown, printAsXml, resetDocumentIndex } from '../src/printing';
+import { printAsMarkdown, printAsXml, resetDocumentIndex } from '../src/printing.js';
 
 function collectWriter() {
   const lines: string[] = [];

@@ -1,4 +1,4 @@
-import { fnmatch, addLineNumbers } from '../src/utils';
+import { fnmatch, addLineNumbers } from '../src/utils.js';
 
 describe('utils.fnmatch', () => {
   test('matches simple wildcard *', () => {
