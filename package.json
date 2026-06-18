@@ -28,9 +28,9 @@
     "prepublishOnly": "pnpm build",
     "start": "node dist/cli.js",
     "dev": "tsx src/index.ts",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
+    "test": "vitest",
+    "test:watch": "vitest --watch",
+    "test:coverage": "vitest --coverage",
     "release": "semantic-release"
   },
   "keywords": [
@@ -43,36 +43,24 @@
     "xml"
   ],
   "dependencies": {
-    "commander": "^14.0.0",
+    "commander": "^14.0.3",
     "ignore": "^7.0.5"
   },
   "devDependencies": {
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/commit-analyzer": "^13.0.1",
     "@semantic-release/git": "^10.0.1",
-    "@semantic-release/github": "^11.0.6",
-    "@semantic-release/npm": "^13.1.2",
-    "@semantic-release/release-notes-generator": "^14.1.0",
-    "@types/jest": "^30.0.0",
-    "@types/node": "^24.3.1",
-    "conventional-changelog-conventionalcommits": "^9.1.0",
-    "jest": "^30.1.3",
-    "semantic-release": "^25.0.3",
-    "ts-jest": "^29.4.1",
-    "tsx": "^4.20.5",
-    "typescript": "^5.9.2"
-  },
-  "overrides": {
-    "glob": "^10.5.0",
-    "npm": {
-      "glob": "^10.5.0",
-      "brace-expansion": "^2.0.3"
-    },
-    "tinyglobby": {
-      "picomatch": "^4.0.4"
-    },
-    "brace-expansion": "^2.0.3",
-    "picomatch": "^4.0.4"
+    "@semantic-release/github": "^12.0.8",
+    "@semantic-release/npm": "^13.1.5",
+    "@semantic-release/release-notes-generator": "^14.1.1",
+    "@types/node": "^25.9.3",
+    "@vitest/coverage-v8": "^4.1.9",
+    "conventional-changelog-conventionalcommits": "^9.3.1",
+    "semantic-release": "^25.0.5",
+    "test-exclude": "^8.0.0",
+    "tsx": "^4.22.4",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.9"
   },
   "packageManager": "pnpm@11.1.3",
   "engines": {
