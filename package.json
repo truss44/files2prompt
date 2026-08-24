@@ -31,7 +31,8 @@
     "test": "vitest",
     "test:watch": "vitest --watch",
     "test:coverage": "vitest --coverage",
-    "release": "semantic-release"
+    "release": "semantic-release",
+    "prepare": "husky"
   },
   "keywords": [
     "cli",
@@ -47,6 +48,8 @@
     "ignore": "^7.0.6"
   },
   "devDependencies": {
+    "@commitlint/cli": "^21.2.2",
+    "@commitlint/config-conventional": "^21.2.2",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/commit-analyzer": "^13.0.1",
     "@semantic-release/git": "^10.0.1",
@@ -56,6 +59,7 @@
     "@types/node": "^25.9.5",
     "@vitest/coverage-v8": "^4.1.10",
     "conventional-changelog-conventionalcommits": "^9.3.1",
+    "husky": "^9.1.7",
     "semantic-release": "^25.0.8",
     "test-exclude": "^8.0.0",
     "tsx": "^4.23.1",

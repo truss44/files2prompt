@@ -24,6 +24,7 @@
 !.configurations/
 !.releaserc.json
 !.npmrc
+!.husky/
 
 # === Rules for root dir ===
 /core
