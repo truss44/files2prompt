@@ -1,7 +1,9 @@
-export default {
+const config = {
   extends: ['@commitlint/config-conventional'],
   rules: {
     'header-max-length': [2, 'always', 150],
     'body-max-line-length': [2, 'always', 200],
   },
 };
+
+export default config;
