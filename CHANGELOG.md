@@ -1,3 +1,9 @@
+## [2.2.6](https://github.com/truss44/files2prompt/compare/v2.2.5...v2.2.6) (2026-08-31)
+
+### Bug Fixes
+
+* **commitlint:** assign config to variable before default export ([9892a4b](https://github.com/truss44/files2prompt/commit/9892a4be07592cfd8bcda43cab974e0ad6ed8205))
+
 ## [2.2.5](https://github.com/truss44/files2prompt/compare/v2.2.4...v2.2.5) (2026-04-26)
 
 ### Bug Fixes
