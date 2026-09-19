@@ -1,3 +1,9 @@
+## [2.2.7](https://github.com/truss44/files2prompt/compare/v2.2.6...v2.2.7) (2026-09-19)
+
+### Bug Fixes
+
+* **deps:** use correct corepack hash and upgrade corepack in build configs ([aaf7529](https://github.com/truss44/files2prompt/commit/aaf7529df4478fe8d922c5f9317a2c53bf447473))
+
 ## [2.2.6](https://github.com/truss44/files2prompt/compare/v2.2.5...v2.2.6) (2026-08-31)
 
 ### Bug Fixes
