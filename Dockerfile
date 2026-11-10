@@ -12,7 +12,7 @@ RUN npm install -g corepack@latest && corepack enable && corepack prepare pnpm@1
 
 # Copy source code
 COPY src ./src
-COPY tsconfig.json ./
+COPY tsconfig.json tsconfig.build.json ./
 
 # Build the application
 RUN pnpm build
@@ -34,4 +34,4 @@ ENV NODE_ENV=production
 RUN npm install -g corepack@latest && corepack enable && corepack prepare pnpm@12.4.2 --activate && pnpm install --prod --ignore-scripts
 
 # Command to run the application
-CMD ["node", "dist/index.js"]
+CMD ["node", "dist/cli.js"]

@@ -24,7 +24,7 @@
     "dist/**/*"
   ],
   "scripts": {
-    "build": "rm -rf dist && tsc",
+    "build": "rm -rf dist && tsc -p tsconfig.build.json",
     "prepublishOnly": "pnpm build",
     "start": "node dist/cli.js",
     "dev": "tsx src/index.ts",
