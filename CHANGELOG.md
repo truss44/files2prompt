@@ -1,3 +1,9 @@
+## [2.2.8](https://github.com/truss44/files2prompt/compare/v2.2.7...v2.2.8) (2026-11-10)
+
+### Bug Fixes
+
+* emit build output to dist/ so the CLI bin and package entry resolve ([#98](https://github.com/truss44/files2prompt/issues/98)) ([3c0c5b9](https://github.com/truss44/files2prompt/commit/3c0c5b9c069e67277156c812733c3685e88d80fd))
+
 ## [2.2.7](https://github.com/truss44/files2prompt/compare/v2.2.6...v2.2.7) (2026-09-19)
 
 ### Bug Fixes
