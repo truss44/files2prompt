@@ -1,3 +1,9 @@
+## [2.2.9](https://github.com/truss44/files2prompt/compare/v2.2.8...v2.2.9) (2026-11-21)
+
+### Bug Fixes
+
+* **deps:** update undici to patched versions ([eede97b](https://github.com/truss44/files2prompt/commit/eede97bd2a22f180afe4aad5dad75dc5c8e5b359))
+
 ## [2.2.8](https://github.com/truss44/files2prompt/compare/v2.2.7...v2.2.8) (2026-11-10)
 
 ### Bug Fixes
