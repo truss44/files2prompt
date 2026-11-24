@@ -1,3 +1,9 @@
+## [2.2.10](https://github.com/truss44/files2prompt/compare/v2.2.9...v2.2.10) (2026-11-24)
+
+### Bug Fixes
+
+* **deps:** patch glob and minimatch advisories ([e9d115a](https://github.com/truss44/files2prompt/commit/e9d115a6e1de135ee6192324255856b2d2e6c809))
+
 ## [2.2.9](https://github.com/truss44/files2prompt/compare/v2.2.8...v2.2.9) (2026-11-21)
 
 ### Bug Fixes
